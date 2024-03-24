@@ -12,6 +12,9 @@ module.exports = {
       height: {
         'custom-lg': '100px',
         'custom-sm': '70px'
+      },
+      borderColor: {
+        'color-custom': 'rgb(230, 230, 230)'
       }
     },
   },
