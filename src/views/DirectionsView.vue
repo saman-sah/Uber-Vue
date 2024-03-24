@@ -29,6 +29,7 @@
             theId="firstInput"
             v-model:input="pickup"
             placeholder="Enter pick-up location"
+            @clearInput="clearInputFunc('firstInput')"
             @isActive="isPickupActive = true"
           />
         </div>
@@ -37,6 +38,7 @@
             theId="secondInput"
             v-model:input="destination"
             placeholder="Where to ?"
+            @clearInput="clearInputFunc('secondInput')"
             @isActive="isPickupActive = false"
           />
         </div>
@@ -44,32 +46,95 @@
 
     </div>
 
-    <div class="flex items-center border-b border-b-color-custom">
-      <div class="bg-gray-400 mx-5 my-3.5 p-1.5 rounded-full">
-        <MapMarkerIcon
-          size="30"
-          fillColor="#f5f5f5"
-        />
-      </div>
-      <div class="">
-        <div class="text-lg text-gray-600">
-          London, UK
+    <div 
+      v-for="address in addressData" 
+      :key="address"
+    >
+      <div 
+        @click="storeAddress(address.description)" 
+        class="flex items-center custom-border-bottom"
+      >
+        <div class="bg-gray-400 mx-5 my-3.5 p-1.5 rounded-full">
+          <MapMarkerIcon :size="30" fillColor="#f5f5f5"/>
         </div>
-        <div class="text-lg text-gray-400">
-          London, UK
+        <div>
+          <div class="text-lg text-gray-600">
+            {{ address.description }}
+          </div>
+          <div class="text-lg text-gray-400">
+            {{ address.terms[2].value }}
+          </div>
         </div>
       </div>
-    </div>
+    </div> 
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import ArrowLeftIcon from 'vue-material-design-icons/ArrowLeft.vue'
-import MapMarkerIcon from 'vue-material-design-icons/MapMarker.vue'
+  import { useDirectionStore } from '@/store/direction-store'
+  import { debounce } from 'lodash'
+  import axios from 'axios'
+  import { useRouter } from 'vue-router'
+  import { onMounted, ref, watch } from 'vue';
+  import ArrowLeftIcon from 'vue-material-design-icons/ArrowLeft.vue';
+  import MapMarkerIcon from 'vue-material-design-icons/MapMarker.vue';
+  import AutoCompleteInput from '../components/AutoCompleteInput.vue'
 
-import AutoCompleteInput from '@/components/AutoCompleteInput.vue'
+  const router = useRouter()
+  const direction = useDirectionStore()
 
-const destination = ref('')
-const isPickupActive = ref(true)
+  let isPickupActive = ref(true)
+
+  let pickup = ref('')
+  let destination = ref('')
+  let addressData = ref('')
+
+  onMounted(() => {
+    document.getElementById("firstInput").focus()
+  })
+
+  const storeAddress = (address) => {
+    if (isPickupActive.value === true) {
+      direction.pickup = address
+      pickup.value = address
+      addressData.value = ''
+    } else {
+      direction.destination = address
+      destination.value = address
+    }
+
+    if (direction.pickup.length > 0 && direction.destination.length > 0) {
+      router.push('/map')
+    }
+  }
+
+  const clearInputFunc = (inputId) => {
+    if (inputId === 'firstInput') {
+      pickup.value = ''; 
+      direction.pickup = '';
+    } 
+
+    if (inputId === 'secondInput') {
+      destination.value = ''; 
+      direction.destination = '';
+    }
+  }
+  
+  const findAddress = debounce(async (address) => {
+    try {
+      if (address === '' || address === null) { 
+        addressData.value = '' 
+        return ''
+      } 
+
+      let res = await axios.get('address/' + address)
+      addressData.value = res.data
+    } catch (err) {
+      console.log(err)
+    }
+  }, 300)
+
+  watch(pickup, async (pickup) => await findAddress(pickup) )
+  watch(destination, async (destination) => await findAddress(destination) )
+
 </script>

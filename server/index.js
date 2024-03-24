@@ -32,7 +32,7 @@ app.get('/api/distance/:pickup/:destination', async (req, res) => {
     let data = await axios.get(
       'distancematrix/json' + 
       '?origins=' + req.params.pickup +
-      '?destinations=' + req.params.destination +
+      '&destinations=' + req.params.destination +
       '&units=imperial' +
       '&key=' +process.env.GOOGLE_MAPS_API_KEY
     )
