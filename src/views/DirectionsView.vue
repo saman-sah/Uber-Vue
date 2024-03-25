@@ -3,7 +3,10 @@
     <div class="grid grid-cols-12 mt-4 shadow-md">
       <div class="col-span-2 mx-auto">
 
-        <div>
+        <div 
+          @click="router.push('/')"
+          class="cursor-pointer"
+        >
           <ArrowLeftIcon size="35" />
         </div>
         <div class="h-16 mt-4 w-full">

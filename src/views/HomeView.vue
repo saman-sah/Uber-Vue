@@ -14,6 +14,7 @@
       </div>
       <div class="grid grid-cols-2 gap-3 my-3">
         <ServiceSelectLarge 
+          @click="router.push('/directions')"
           text="Ride"
           image-width="74"
           image="ride"
@@ -43,7 +44,10 @@
           image="travel"
         />
       </div>
-      <div class="w-full bg-custom-1 h-14 rounded-full flex items-center p-3">
+      <div
+        @click="router.push('/directions')" 
+        class="w-full bg-custom-1 h-14 rounded-full flex items-center p-3"
+      >
         <MagnifyIcon size="40" />
         <div class="ml-3 text-xs font-semibold text-gray-700">
           Enter pickup point
@@ -62,7 +66,10 @@
           Home
         </div>
       </div>
-      <div class="grid place-items-center">
+      <div 
+        @click="router.push('/directions')"
+        class="grid place-items-center cursor-pointer"
+      >
         <MapMarkerIcon
           size="30"
           fillColor="#b3b1b1"
@@ -77,10 +84,22 @@
 </template>
 
 <script setup>
+import { onMounted } from 'vue'
+
+import { useRouter } from 'vue-router'
+import { useDirectionStore } from '@/store/direction-store'
+
 import HomeIcon from 'vue-material-design-icons/Home.vue'
 import MagnifyIcon from 'vue-material-design-icons/Magnify.vue'
 import MapMarkerIcon from 'vue-material-design-icons/MapMarker.vue'
 
 import ServiceSelectLarge from '@/components/ServiceSelectLarge.vue'
 import ServiceSelectSmall from '@/components/ServiceSelectSmall.vue'
+
+const router = useRouter()
+const direction = useDirectionStore()
+onMounted(() => {
+  direction.pickup = ''
+  direction.destination =''
+})
 </script>
